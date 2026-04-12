@@ -1,0 +1,86 @@
+/*
+  Warehouse SQL dropdown — open menu (injected at end of <body> via index_string).
+  Keep :root in sync with assets/custom.css --warehouse-select-width.
+  Use explicit width on the menu: width:100% resolves against a narrow offset parent and becomes tiny.
+*/
+
+:root {
+  --warehouse-select-width: min(36rem, min(42vw, calc(100vw - 2rem)));
+}
+
+/* Any menu under the hero strip (covers react-select DOM quirks). */
+.hero-brand .Select-menu-outer {
+  z-index: 10050 !important;
+  margin-top: 8px !important;
+  left: 0 !important;
+  right: auto !important;
+  box-sizing: border-box !important;
+  width: var(--warehouse-select-width) !important;
+  min-width: var(--warehouse-select-width) !important;
+  max-width: min(100vw - 1rem, var(--warehouse-select-width)) !important;
+  border-radius: 0.625rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-top: 2px solid #ff3621 !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 54, 33, 0.06),
+    0 10px 40px -12px rgba(15, 23, 42, 0.25),
+    0 4px 16px -4px rgba(15, 23, 42, 0.12) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  overflow: hidden !important;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.hero-brand .Select-menu-outer .Select-menu {
+  max-height: min(260px, 50vh) !important;
+  padding: 4px 0 !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.28) transparent;
+}
+
+.hero-brand .Select-menu-outer .Select-menu::-webkit-scrollbar {
+  width: 6px;
+}
+.hero-brand .Select-menu-outer .Select-menu::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+  border-radius: 3px;
+}
+
+.hero-brand .Select-menu-outer .Select-option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  padding: 0.625rem 0.875rem !important;
+  margin: 0 6px !important;
+  border-radius: 0.375rem !important;
+  cursor: pointer !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  /* Dash/react-select default optionHeight is a fixed row height — override so text never stacks/overlaps */
+  height: auto !important;
+  min-height: 2.75rem !important;
+  box-sizing: border-box !important;
+}
+
+.hero-brand .Select-menu-outer .Select-option ~ .Select-option {
+  box-shadow: 0 -1px 0 rgba(15, 23, 42, 0.07) !important;
+}
+
+.hero-brand .Select-menu-outer .Select-option.is-focused {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+.hero-brand .Select-menu-outer .Select-option.is-selected {
+  color: #0f172a !important;
+  background-color: rgba(255, 54, 33, 0.1) !important;
+  font-weight: 600 !important;
+}
+
+.hero-brand .Select-menu-outer .Select-option.is-focused.is-selected {
+  color: #0f172a !important;
+  background-color: rgba(255, 54, 33, 0.14) !important;
+}

@@ -1,0 +1,279 @@
+/* App stylesheet (assets/). Databricks header red + modern surfaces. */
+:root {
+  --db-red: #ff3621;
+  --db-red-deep: #e62e1c;
+  --db-red-soft: rgba(255, 54, 33, 0.09);
+  --db-red-softer: rgba(255, 54, 33, 0.06);
+  --db-red-line: rgba(255, 54, 33, 0.22);
+  --db-red-glow: rgba(255, 54, 33, 0.18);
+  --surface-page: #f3f4f6;
+  --surface-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  /* Closed control + open menu share this width (avoid flex-1 / Tailwind fighting fixed width). */
+  --warehouse-select-width: min(36rem, min(42vw, calc(100vw - 2rem)));
+}
+
+body {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Full app canvas: subtle cool gradient so white cards pop */
+.app-page-bg {
+  background: linear-gradient(165deg, #f8fafc 0%, #f1f5f9 40%, #eef2f7 100%);
+}
+
+/* Hero strip: matches Databricks header bar (brand red); fixed 60px (aligns with sidebar logo row) */
+.hero-brand {
+  height: 60px;
+  min-height: 60px;
+  max-height: 60px;
+  box-sizing: border-box;
+  /* Let react-select menu extend below the bar; do NOT use overflow:hidden (clips the list). */
+  overflow: visible;
+  /* Stack above the sibling main column so the open dropdown is not covered by page content. */
+  position: relative;
+  z-index: 100;
+  background: linear-gradient(135deg, #ff3621 0%, #ff4a32 42%, #e62e1c 100%);
+  color: #fff;
+  text-align: left;
+  /* Do not center the inner row (conflicts with Tailwind justify-center utility) */
+  justify-content: flex-start !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 8px 32px -8px rgba(230, 46, 28, 0.45);
+}
+
+/* Full width of main column; title left + warehouse right (not a centered max-w-6xl block) */
+.hero-brand .hero-inner {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Title shares the header row with the warehouse dropdown — do not span 100% or it pushes the control */
+.hero-brand .hero-title {
+  color: #fff;
+  text-align: left;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  margin: 0;
+  max-width: 100%;
+}
+
+/* Sidebar nav links */
+.nav-link-dbx {
+  display: block;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 13px;
+  line-height: 1.375;
+  color: #475569;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.nav-link-dbx:hover {
+  background-color: var(--db-red-soft);
+  color: var(--db-red-deep);
+}
+
+/* Stat / chart cards */
+.card-elevated {
+  background: var(--surface-card);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 40px -16px rgba(15, 23, 42, 0.08);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card-elevated:hover {
+  border-color: var(--db-red-line);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 16px 48px -12px var(--db-red-glow);
+}
+
+/* Capability pages: panels fill the main column (see input.md — layout full width). */
+.card-elevated,
+.chart-panel {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chart-panel {
+  background: var(--surface-card);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Plotly graphs: stretch to panel width */
+.chart-panel .js-plotly-plot,
+.chart-panel .plotly-graph-div {
+  width: 100% !important;
+}
+.chart-panel .dash-graph {
+  width: 100%;
+}
+
+/* dcc.Loading: reserve space; spinner centered horizontally and vertically */
+.loading-parent {
+  position: relative;
+  min-height: 12rem;
+  width: 100%;
+}
+
+/* className on dcc.Loading applies to the spinner root node */
+.loading-parent .dash-loading-spinner-root {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 2;
+  margin: 0 !important;
+  pointer-events: none;
+}
+
+/* Native <details> / <summary> */
+aside details > summary {
+  list-style: none;
+}
+aside details > summary::-webkit-details-marker {
+  display: none;
+}
+
+aside details[open] .nav-chevron {
+  transform: rotate(180deg);
+}
+
+aside details > summary:hover {
+  color: var(--db-red);
+}
+
+.sidebar-shell {
+  border-right: 1px solid rgba(15, 23, 42, 0.07);
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  box-shadow: 4px 0 32px -16px rgba(15, 23, 42, 0.07);
+}
+
+.nav-rail {
+  border-left: 2px solid var(--db-red-softer);
+}
+
+/* Running SQL warehouses list (hero, top-right) */
+.hero-brand .warehouse-panel ul::-webkit-scrollbar {
+  width: 4px;
+}
+.hero-brand .warehouse-panel ul::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+}
+
+/* Warehouse block: label + select. min-width so flex row never shrinks this group below the panel width (Tailwind min-w-0 on the row was collapsing the open menu’s % width). */
+.hero-brand .warehouse-dd {
+  flex-shrink: 0;
+  align-items: center;
+  min-width: min(var(--warehouse-select-width), 100%);
+}
+@media (min-width: 640px) {
+  .hero-brand .warehouse-dd {
+    margin-left: auto;
+    align-self: center;
+  }
+}
+
+/* Dash root: beat Tailwind flex/min-width utilities on the same node. */
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select {
+  flex: none !important;
+  width: var(--warehouse-select-width) !important;
+  max-width: var(--warehouse-select-width) !important;
+  min-width: min(12rem, 100%) !important;
+  box-sizing: border-box !important;
+}
+
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select {
+  width: 100% !important;
+}
+
+/* react-select control fills the dropdown root */
+.hero-brand .warehouse-dd .Select-control,
+.hero-brand .warehouse-dd .css-13cymwt-control,
+.hero-brand .warehouse-dd .css-1fds7xb-control {
+  /* Fit inside 60px hero strip with label + vertical centering */
+  min-height: 34px;
+  width: 100% !important;
+  padding-left: 0.625rem !important;
+  padding-right: 0.5rem !important;
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  border-radius: 0.5rem;
+  box-shadow: none !important;
+}
+.hero-brand .warehouse-dd .Select-placeholder,
+.hero-brand .warehouse-dd .css-1jqq78o-placeholder {
+  color: #fff !important;
+}
+.hero-brand .warehouse-dd .Select-value-label,
+.hero-brand .warehouse-dd .css-1dimb5e-singleValue {
+  color: #fff !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.hero-brand .warehouse-dd .Select-arrow-zone .Select-arrow {
+  border-top-color: rgba(255, 255, 255, 0.85);
+}
+.hero-brand .warehouse-dd .css-1xc3v61-indicatorContainer,
+.hero-brand .warehouse-dd .css-15lsz6c-indicatorContainer {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Open menu styles: injected at end of <body> from warehouse_dropdown_menu.css (see app.py). */
+
+/* Page intros (dcc.Markdown): full width of main column — no max-width cap (see m01_common.page_shell) */
+.page-intro-markdown {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.page-intro-markdown p {
+  margin: 0 0 0.5rem;
+}
+.page-intro-markdown p:last-child {
+  margin-bottom: 0;
+}
+.page-intro-markdown ul {
+  margin: 0.5rem 0 0.75rem;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+.page-intro-markdown li {
+  margin-bottom: 0.25rem;
+}
+.page-intro-markdown strong {
+  font-weight: 600;
+  color: #1e293b;
+}
+.page-intro-markdown em {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 13px;
+  font-style: italic;
+  color: #64748b;
+  line-height: 1.45;
+}
