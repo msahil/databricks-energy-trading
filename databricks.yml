@@ -1,0 +1,47 @@
+# Declarative Automation Bundle (root):
+# - Job `energy_trading_demo_data`: notebooks 01→04 → Unity Catalog Delta (modules/forecasting/README.md).
+# - App `energy_trading_app`: Dash UI in app/ (app.yaml, requirements.txt).
+#
+# Deploy:   databricks bundle deploy
+# Seed UC:  databricks bundle run energy_trading_demo_data
+# App:      databricks bundle run energy_trading_app
+#
+bundle:
+  name: databricks-energy-trading
+
+include:
+  - resources/*.yml
+
+variables:
+  # Worker shape — set per cloud (e.g. Azure: Standard_D4ds_v5, GCP: n2-standard-4).
+  node_type_id:
+    description: "Job cluster worker/driver node type"
+    default: "i3.xlarge"
+  spark_version:
+    description: "Databricks Runtime for the demo-data job cluster"
+    default: "15.4.x-scala2.12"
+  num_workers:
+    description: "Number of workers for the demo-data job cluster"
+    default: 1
+
+sync:
+  exclude:
+    - .git
+    - "**/.databricks"
+    - "**/__pycache__"
+    - "**/*.pyc"
+    - "**/.DS_Store"
+    - "app/.venv"
+    - "**/*.ipynb_checkpoints"
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      root_path: /Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  prod:
+    mode: production
+    workspace:
+      root_path: /Shared/.bundle/${bundle.name}/${bundle.target}

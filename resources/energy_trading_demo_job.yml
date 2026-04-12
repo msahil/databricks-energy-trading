@@ -1,0 +1,54 @@
+# Lakeflow job: run forecasting demo notebooks in order to write Delta tables to UC.
+# Notebooks live under modules/forecasting/notebooks/ (regenerate with build_notebooks.py).
+#
+resources:
+  jobs:
+    energy_trading_demo_data:
+      name: "[${bundle.target}] energy_trading_demo_data"
+      description: >-
+        Seeds synthetic European wholesale demo data: run notebooks 01→04 to materialise
+        Delta tables in energy_utilities.energy_trading2 (see modules/forecasting/README.md).
+
+      job_clusters:
+        - job_cluster_key: demo_data_uc_cluster
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type_id}
+            driver_node_type_id: ${var.node_type_id}
+            num_workers: ${var.num_workers}
+            data_security_mode: SINGLE_USER
+            spark_env_vars:
+              # Optional: uncomment if you upload demo_data to DBFS/FileStore and set path.
+              # DEMO_DATA_PATH: "/dbfs/FileStore/energy-trading-forecasting-demo/demo_data"
+              PYSPARK_PYTHON: "/databricks/python3/bin/python3"
+
+      tasks:
+        - task_key: nb01_market_data
+          job_cluster_key: demo_data_uc_cluster
+          notebook_task:
+            notebook_path: ../modules/forecasting/notebooks/01_market_data_and_visualisation.ipynb
+
+        - task_key: nb02_trade_capture
+          depends_on:
+            - task_key: nb01_market_data
+          job_cluster_key: demo_data_uc_cluster
+          notebook_task:
+            notebook_path: ../modules/forecasting/notebooks/02_trade_capture_and_pricing.ipynb
+
+        - task_key: nb03_forecasting
+          depends_on:
+            - task_key: nb02_trade_capture
+          job_cluster_key: demo_data_uc_cluster
+          notebook_task:
+            notebook_path: ../modules/forecasting/notebooks/03_forecasting_and_predictive_analytics.ipynb
+
+        - task_key: nb04_strategy
+          depends_on:
+            - task_key: nb03_forecasting
+          job_cluster_key: demo_data_uc_cluster
+          notebook_task:
+            notebook_path: ../modules/forecasting/notebooks/04_strategy_optimisation_and_algo_trading.ipynb
+
+      permissions:
+        - level: CAN_MANAGE_RUN
+          group_name: users

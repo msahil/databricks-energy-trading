@@ -1,0 +1,13 @@
+# Databricks App: Energy Trading System (Dash + gunicorn). Source: app/ (app.yaml + requirements.txt).
+# Deploy with the root bundle:  databricks bundle deploy
+# Start / update the app after deploy:  databricks bundle run energy_trading_app
+#
+resources:
+  apps:
+    energy_trading_app:
+      # App name in workspace: lowercase letters, numbers, dashes only (no brackets/spaces/underscores).
+      name: energy-trading-app-${bundle.target}
+      description: >-
+        Energy Trading demo UI — Dash app with SQL warehouse–driven capability pages
+        (market data, trade capture, forecasting, strategy). See app/app.yaml and app/requirements.txt.
+      source_code_path: ../app

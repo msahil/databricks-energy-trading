@@ -1,0 +1,40 @@
+{
+  "run_name": "energy-trading-forecasting-demo",
+  "tasks": [
+    {
+      "task_key": "nb01",
+      "existing_cluster_id": "0730-172948-runts698",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/mohammad.sahil@databricks.com/energy-trading-forecasting-demo/notebooks/01_market_data_and_visualisation",
+        "source": "WORKSPACE"
+      }
+    },
+    {
+      "task_key": "nb02",
+      "depends_on": [{ "task_key": "nb01" }],
+      "existing_cluster_id": "0730-172948-runts698",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/mohammad.sahil@databricks.com/energy-trading-forecasting-demo/notebooks/02_trade_capture_and_pricing",
+        "source": "WORKSPACE"
+      }
+    },
+    {
+      "task_key": "nb03",
+      "depends_on": [{ "task_key": "nb02" }],
+      "existing_cluster_id": "0730-172948-runts698",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/mohammad.sahil@databricks.com/energy-trading-forecasting-demo/notebooks/03_forecasting_and_predictive_analytics",
+        "source": "WORKSPACE"
+      }
+    },
+    {
+      "task_key": "nb04",
+      "depends_on": [{ "task_key": "nb03" }],
+      "existing_cluster_id": "0730-172948-runts698",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/mohammad.sahil@databricks.com/energy-trading-forecasting-demo/notebooks/04_strategy_optimisation_and_algo_trading",
+        "source": "WORKSPACE"
+      }
+    }
+  ]
+}
