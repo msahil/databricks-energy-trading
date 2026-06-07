@@ -1,7 +1,11 @@
 """
-Run SQL against Unity Catalog via the Databricks Statement Execution API (selected SQL warehouse).
+Run SQL against Unity Catalog via the Databricks Statement Execution API.
 
-Used by capability pages; catalog/schema default to DEMO_UC_* / README.md (energy_utilities.energy_trading2).
+The warehouse id comes from the app header dropdown (`sql-warehouse-dropdown` in app.py).
+Catalog/schema default to DEMO_UC_CATALOG / DEMO_UC_SCHEMA (or DEMO_UC_LOCATION as catalog.schema).
+
+Capability pages should call run_sql via app.uc_pages.run_uc_sql so catalog, schema, and
+warehouse selection stay consistent.
 """
 
 from __future__ import annotations
@@ -17,6 +21,7 @@ def default_catalog_schema() -> tuple[str, str]:
     if loc and "." in loc:
         a, b = loc.split(".", 1)
         return a.strip(), b.strip()
+    # Match demo data job defaults (databricks.yml / energy_trading_demo_data).
     cat = os.environ.get("DEMO_UC_CATALOG", "energy_utilities").strip() or "energy_utilities"
     sch = os.environ.get("DEMO_UC_SCHEMA", "energy_trading2").strip() or "energy_trading2"
     return cat, sch

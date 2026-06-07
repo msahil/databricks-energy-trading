@@ -1,15 +1,18 @@
 /*
-  Warehouse SQL dropdown — open menu (injected at end of <body> via index_string).
+  Header SQL warehouse dropdown — open menu (injected at end of <body> via index_string).
+  Hero sets color:#fff on descendants; menu options must force dark text.
   Keep :root in sync with assets/custom.css --warehouse-select-width.
-  Use explicit width on the menu: width:100% resolves against a narrow offset parent and becomes tiny.
 */
 
 :root {
-  --warehouse-select-width: min(36rem, min(42vw, calc(100vw - 2rem)));
+  --warehouse-select-width: min(42rem, min(48vw, calc(100vw - 2rem)));
 }
 
-/* Any menu under the hero strip (covers react-select DOM quirks). */
-.hero-brand .Select-menu-outer {
+/* Dash id on dropdown root — works if menu stays in subtree or is portaled nearby */
+#sql-warehouse-dropdown .Select-menu-outer,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer,
+.hero-brand .warehouse-dd #sql-warehouse-dropdown .Select-menu-outer {
   z-index: 10050 !important;
   margin-top: 8px !important;
   left: 0 !important;
@@ -31,22 +34,32 @@
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
 }
 
-.hero-brand .Select-menu-outer .Select-menu {
+#sql-warehouse-dropdown .Select-menu-outer .Select-menu,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-menu,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-menu,
+.hero-brand .warehouse-dd #sql-warehouse-dropdown .Select-menu-outer .Select-menu {
   max-height: min(260px, 50vh) !important;
   padding: 4px 0 !important;
   scrollbar-width: thin;
   scrollbar-color: rgba(15, 23, 42, 0.28) transparent;
 }
 
-.hero-brand .Select-menu-outer .Select-menu::-webkit-scrollbar {
+#sql-warehouse-dropdown .Select-menu-outer .Select-menu::-webkit-scrollbar,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-menu::-webkit-scrollbar,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-menu::-webkit-scrollbar {
   width: 6px;
 }
-.hero-brand .Select-menu-outer .Select-menu::-webkit-scrollbar-thumb {
+#sql-warehouse-dropdown .Select-menu-outer .Select-menu::-webkit-scrollbar-thumb,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-menu::-webkit-scrollbar-thumb,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-menu::-webkit-scrollbar-thumb {
   background: rgba(15, 23, 42, 0.18);
   border-radius: 3px;
 }
 
-.hero-brand .Select-menu-outer .Select-option {
+#sql-warehouse-dropdown .Select-menu-outer .Select-option,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option,
+.hero-brand .warehouse-dd #sql-warehouse-dropdown .Select-menu-outer .Select-option {
   color: #0f172a !important;
   background-color: #ffffff !important;
   padding: 0.625rem 0.875rem !important;
@@ -59,28 +72,65 @@
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  /* Dash/react-select default optionHeight is a fixed row height — override so text never stacks/overlaps */
   height: auto !important;
   min-height: 2.75rem !important;
   box-sizing: border-box !important;
 }
 
-.hero-brand .Select-menu-outer .Select-option ~ .Select-option {
+#sql-warehouse-dropdown .Select-menu-outer .Select-option ~ .Select-option,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option ~ .Select-option,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option ~ .Select-option {
   box-shadow: 0 -1px 0 rgba(15, 23, 42, 0.07) !important;
 }
 
-.hero-brand .Select-menu-outer .Select-option.is-focused {
+/* Beat hero .Select-value-label { color:#fff } when option reuses that class */
+#sql-warehouse-dropdown .Select-menu-outer .Select-option .Select-value-label,
+#sql-warehouse-dropdown .Select-menu-outer .Select-option .Select-value,
+.hero-brand .warehouse-dd .Select-menu-outer .Select-option .Select-value-label,
+.hero-brand .warehouse-dd .Select-menu-outer .Select-option .Select-value,
+.hero-brand .warehouse-dd .Select-menu-outer .Select-option .VirtualizedSelectOption {
+  color: #0f172a !important;
+}
+
+#sql-warehouse-dropdown .Select-menu-outer .Select-option.is-focused,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option.is-focused,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option.is-focused {
   color: #0f172a !important;
   background-color: #f1f5f9 !important;
 }
 
-.hero-brand .Select-menu-outer .Select-option.is-selected {
+#sql-warehouse-dropdown .Select-menu-outer .Select-option.is-focused .Select-value-label,
+.hero-brand .warehouse-dd .Select-menu-outer .Select-option.is-focused .Select-value-label {
+  color: #0f172a !important;
+}
+
+#sql-warehouse-dropdown .Select-menu-outer .Select-option.is-selected,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option.is-selected,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option.is-selected {
   color: #0f172a !important;
   background-color: rgba(255, 54, 33, 0.1) !important;
   font-weight: 600 !important;
 }
 
-.hero-brand .Select-menu-outer .Select-option.is-focused.is-selected {
+#sql-warehouse-dropdown .Select-menu-outer .Select-option.is-focused.is-selected,
+.hero-brand .warehouse-dd .dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option.is-focused.is-selected,
+.hero-brand .warehouse-dd ._dash-dropdown.warehouse-sql-select .Select-menu-outer .Select-option.is-focused.is-selected {
   color: #0f172a !important;
   background-color: rgba(255, 54, 33, 0.14) !important;
+}
+
+/* Menu portaled under .hero-brand but outside .warehouse-dd */
+.hero-brand .Select-menu-outer .Select-option,
+.hero-brand .Select-menu-outer .Select-option .Select-value-label {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+.hero-brand .Select-menu-outer .Select-option.is-focused,
+.hero-brand .Select-menu-outer .Select-option.is-focused .Select-value-label {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+.hero-brand .Select-menu-outer .Select-option.is-selected {
+  color: #0f172a !important;
+  background-color: rgba(255, 54, 33, 0.1) !important;
 }

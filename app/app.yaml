@@ -1,19 +1,19 @@
 # Databricks Apps runtime: https://docs.databricks.com/aws/en/dev-tools/databricks-apps/app-runtime
-# Dash exposes the underlying Flask app as `server` for WSGI (gunicorn).
-# Single worker avoids duplicate in-memory state; timeout allows slow cold starts.
+# Development: `python app.py` (Dash debug server + hot reload). Production: gunicorn app:server
 command:
-  - gunicorn
-  - app:server
-  - -w
-  - "1"
-  - --timeout
-  - "120"
-  - -b
-  - 0.0.0.0:$DATABRICKS_APP_PORT
+  - python
+  - app.py
 
-# Optional overrides for UC SQL defaults (see app/uc_sql.py). Matches demo-data job output catalog/schema.
+# Optional Unity Catalog defaults for Statement Execution (see app/uc_sql.py).
 env:
+  - name: DASH_DEBUG
+    value: "false"
   - name: DEMO_UC_CATALOG
     value: "energy_utilities"
   - name: DEMO_UC_SCHEMA
     value: "energy_trading2"
+  # Optional: notebook 04 space_id + workspace host for /short-term/insights deep link
+  # - name: GENIE_SPACE_ID
+  #   value: "01f158459b24135e8ad11dea6bd0773c"
+  # - name: DATABRICKS_HOST
+  #   value: "https://e2-demo-field-eng.cloud.databricks.com"

@@ -1,0 +1,162 @@
+# Lakeflow job: reset UC schema, then seed short-term and volume-forecasting demo notebooks.
+# Notebooks live under modules/short-term/notebooks/ and modules/volume-forecasting/notebooks/.
+# Tasks use serverless compute (no job_clusters); catalog/schema via task base_parameters.
+#
+resources:
+  jobs:
+    energy_trading_demo_data:
+      name: "[${bundle.target}] energy_trading_demo_data"
+      description: >-
+        Drops and recreates energy_utilities.energy_trading2, then runs the short-term notebooks
+        (01 → 03 → 02 → 04) and the volume-forecasting notebooks
+        (04 → 01/02/03/05/06 → 07 → 08) to materialise Delta tables. Serverless compute.
+
+      parameters:
+        - name: catalog
+          default: energy_utilities
+        - name: schema
+          default: energy_trading2
+
+      tasks:
+        # ------------------------------------------------------------------
+        # 0. Fresh schema (drop all existing tables)
+        # ------------------------------------------------------------------
+        - task_key: reset_schema
+          notebook_task:
+            notebook_path: ../modules/setup/00_reset_demo_schema.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        # ------------------------------------------------------------------
+        # Short-term branch — 01 (dims + squaring) → 03 (DSR) → 02 (control tower)
+        # 02 aggregates 01 and 03, so it runs last.
+        # ------------------------------------------------------------------
+        - task_key: st01_trading_near_delivery
+          depends_on:
+            - task_key: reset_schema
+          notebook_task:
+            notebook_path: ../modules/short-term/notebooks/01_trading_near_delivery.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: st03_dsr_market_access
+          depends_on:
+            - task_key: st01_trading_near_delivery
+          notebook_task:
+            notebook_path: ../modules/short-term/notebooks/03_dsr_market_access.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: st02_operations_live_dispatch
+          depends_on:
+            - task_key: st03_dsr_market_access
+          notebook_task:
+            notebook_path: ../modules/short-term/notebooks/02_operations_live_dispatch.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: st04_trader_insights
+          depends_on:
+            - task_key: st02_operations_live_dispatch
+          notebook_task:
+            notebook_path: ../modules/short-term/notebooks/04_trader_insights_genie.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        # ------------------------------------------------------------------
+        # Volume-forecasting branch — 04 (shared dims + meter profile) first,
+        # then 01/02/03/05/06 (consumption, industry, wind, solar),
+        # then 07 (reconcile/publish), then 08 (accuracy & value).
+        # ------------------------------------------------------------------
+        - task_key: vf04_smart_metering
+          depends_on:
+            - task_key: reset_schema
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/04_smart_metering.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf01_consumption_short_term
+          depends_on:
+            - task_key: vf04_smart_metering
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/01_consumption_short_term.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf02_consumption_long_term
+          depends_on:
+            - task_key: vf04_smart_metering
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/02_consumption_long_term.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf03_industry_involvement
+          depends_on:
+            - task_key: reset_schema
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/03_industry_involvement.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf05_wind_forecasting
+          depends_on:
+            - task_key: reset_schema
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/05_wind_forecasting.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf06_solar_forecasting
+          depends_on:
+            - task_key: vf04_smart_metering
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/06_solar_forecasting.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf07_publication_net_volume
+          depends_on:
+            - task_key: vf01_consumption_short_term
+            - task_key: vf03_industry_involvement
+            - task_key: vf05_wind_forecasting
+            - task_key: vf06_solar_forecasting
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/07_publication_net_volume.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf08_forecast_accuracy_value
+          depends_on:
+            - task_key: vf07_publication_net_volume
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/08_forecast_accuracy_value.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+        - task_key: vf09_renewables_insights_genie
+          depends_on:
+            - task_key: vf08_forecast_accuracy_value
+          notebook_task:
+            notebook_path: ../modules/volume-forecasting/notebooks/09_renewables_insights_genie.ipynb
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              schema: "{{job.parameters.schema}}"
+
+      permissions:
+        - level: CAN_MANAGE_RUN
+          group_name: users

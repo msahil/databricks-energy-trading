@@ -81,9 +81,6 @@ target/
 # Databricks bundle local state (deploy / sync metadata)
 .databricks/
 
-# Local CSV/Parquet from forecasting demo notebooks (no Spark)
-modules/forecasting/_demo_output/
-
 # IPython
 profile_default/
 ipython_config.py
