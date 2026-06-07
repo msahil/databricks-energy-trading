@@ -1,0 +1,233 @@
+/*
+  Architecture diagram spacing guard — injected at end of <body> (after Tailwind CDN).
+  Keeps --dip-space rhythm when Tailwind preflight/utilities load after assets/custom.css.
+*/
+.dip-arch-root {
+  --dip-space: 0.5625rem;
+  --dip-tile-width: 185px;
+  --dip-foundation-tile-width: 150px;
+  --dip-tile-track-1: var(--dip-tile-width);
+  --dip-panel-1: calc(var(--dip-tile-width) + 2 * var(--dip-space));
+  --dip-panel-2: var(--dip-panel-1);
+  --dip-panel-pair: calc(2 * var(--dip-panel-1) + var(--dip-space));
+  --dip-panel-upper: calc(2 * var(--dip-panel-2) + var(--dip-space));
+  --dip-panel-upper-full: calc(3 * var(--dip-panel-2) + 2 * var(--dip-space));
+  --dip-med-width: calc(var(--dip-tile-width) * 0.7);
+  --dip-models-width: 625px;
+}
+
+.dip-arch-root .dip-arch-grid,
+.dip-arch-root .dip-platform-row,
+.dip-arch-root .dip-platform-jobs-row,
+.dip-arch-root .dip-platform-core,
+.dip-arch-root .dip-platform-upper,
+.dip-arch-root .dip-medallion-row,
+.dip-arch-root .dip-foundation,
+.dip-arch-root .dip-apps-inner,
+.dip-arch-root .dip-block-grid {
+  gap: var(--dip-space);
+}
+
+.dip-arch-root .dip-arch-grid,
+.dip-arch-root .dip-block-grid,
+.dip-arch-root .dip-medallion-row {
+  padding: var(--dip-space);
+}
+
+.dip-arch-root .dip-platform-jobs-row {
+  padding: var(--dip-space);
+}
+
+.dip-arch-root .dip-platform-body {
+  padding: var(--dip-space);
+  box-sizing: border-box;
+}
+
+.dip-arch-root .dip-arch-grid,
+.dip-arch-root .dip-platform-row,
+.dip-arch-root .dip-platform-jobs-row {
+  gap: var(--dip-space);
+}
+
+.dip-arch-root .dip-tile {
+  gap: var(--dip-space);
+  padding: var(--dip-space);
+  width: var(--dip-tile-width);
+  min-width: var(--dip-tile-width);
+  max-width: var(--dip-tile-width);
+  box-sizing: border-box;
+}
+
+/* Apps column: fit tiles inside panel (guard loads after custom.css) */
+.dip-arch-root .dip-apps-inner .dip-tile {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dip-arch-root .dip-apps-inner .dip-tile-text {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.dip-arch-root .dip-tile-foundation {
+  width: var(--dip-foundation-tile-width);
+  min-width: var(--dip-foundation-tile-width);
+  max-width: var(--dip-foundation-tile-width);
+  box-sizing: border-box;
+}
+
+/*
+  Full-height slide deck guard — injected after Tailwind CDN.
+  Locks a fixed viewport height so every slide is the same size.
+*/
+.app-page-bg:has(.page-slide-deck) {
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.app-page-bg:has(.page-slide-deck) > div:last-of-type {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+main:has(.page-slide-deck) {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: calc(100vh - 60px) !important;
+  max-height: calc(100vh - 60px) !important;
+  padding: 0.375rem 0.5rem 0.5rem !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+main:has(.page-slide-deck) > div,
+.page-slide-deck {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.page-slide-deck .slide-deck {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto auto !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.page-slide-deck .slide-deck-viewport {
+  grid-row: 2 !important;
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-height: var(--slide-viewport-height, calc(100vh - 60px - 5.25rem)) !important;
+  max-height: var(--slide-viewport-height, calc(100vh - 60px - 5.25rem)) !important;
+  height: var(--slide-viewport-height, calc(100vh - 60px - 5.25rem)) !important;
+  overflow: hidden !important;
+}
+
+.page-slide-deck .slide-panel-inner {
+  grid-row: 1 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.page-slide-deck .slide-header {
+  flex: 0 0 auto !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-slide-deck .slide-body {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.page-slide-deck .slide-body-arch,
+.page-slide-deck .slide-body-capabilities {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  justify-content: flex-start !important;
+}
+
+.page-slide-deck .slide-hero,
+.page-slide-deck .slide-challenges {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.page-slide-deck .slide-capabilities {
+  flex: 0 1 auto !important;
+  min-height: auto !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.page-slide-deck .slide-challenge-grid,
+.page-slide-deck .slide-arch-wrap {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: 100% !important;
+}
+
+.page-slide-deck .slide-cap-grid {
+  display: grid !important;
+  grid-auto-rows: auto !important;
+  height: auto !important;
+  align-content: start !important;
+  align-items: start !important;
+}
+
+.page-slide-deck .slide-body-arch {
+  align-items: center !important;
+}
+
+.page-slide-deck .slide-arch-wrap,
+.page-slide-deck .slide-body-arch .dip-arch-root {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.page-slide-deck .slide-deck-progress-track {
+  grid-row: 3 !important;
+}
+
+.page-slide-deck .slide-deck-dots {
+  grid-row: 4 !important;
+}

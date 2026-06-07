@@ -1,0 +1,114 @@
+/*
+  Page toolbar dropdowns (curve / PPA as-of, contract) — injected at end of <body>.
+  Class toolbar-select on dcc.Dropdown; wins over Tailwind CDN and Dash react-select defaults.
+  Closed-control styles stay in assets/custom.css under .curve-toolbar .toolbar-select.
+  Width tokens: --toolbar-select-menu-min-width in assets/custom.css :root.
+*/
+
+:root {
+  --toolbar-select-menu-min-width: 28rem;
+}
+
+.dash-dropdown.toolbar-select .Select-menu-outer,
+._dash-dropdown.toolbar-select .Select-menu-outer {
+  z-index: 10050 !important;
+  margin-top: 4px !important;
+  box-sizing: border-box !important;
+  min-width: max(100%, var(--toolbar-select-menu-min-width)) !important;
+  width: max(100%, var(--toolbar-select-menu-min-width)) !important;
+  max-width: min(42rem, calc(100vw - 1rem)) !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 8px 24px -8px rgb(15 23 42 / 18%) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
+  overflow: hidden !important;
+}
+
+.dash-dropdown.toolbar-select.curve-as-of-select .Select-menu-outer,
+._dash-dropdown.toolbar-select.curve-as-of-select .Select-menu-outer {
+  min-width: max(100%, 20rem) !important;
+  width: max(100%, 32rem) !important;
+  max-width: min(32rem, calc(100vw - 1rem)) !important;
+}
+
+.dash-dropdown.toolbar-select.toolbar-select-wide .Select-menu-outer,
+._dash-dropdown.toolbar-select.toolbar-select-wide .Select-menu-outer {
+  min-width: max(100%, 28rem) !important;
+  width: max(100%, 42rem) !important;
+  max-width: min(42rem, calc(100vw - 1rem)) !important;
+}
+
+.dash-dropdown.toolbar-select.curve-contract-select .Select-menu-outer,
+._dash-dropdown.toolbar-select.curve-contract-select .Select-menu-outer {
+  min-width: max(100%, 28rem) !important;
+  width: max(100%, 42rem) !important;
+  max-width: min(44rem, calc(100vw - 1rem)) !important;
+}
+
+.dash-dropdown.toolbar-select .Select-menu-outer .Select-menu,
+._dash-dropdown.toolbar-select .Select-menu-outer .Select-menu {
+  max-height: min(280px, 50vh) !important;
+  padding: 4px 0 !important;
+}
+
+.dash-dropdown.toolbar-select .Select-menu-outer .Select-option,
+._dash-dropdown.toolbar-select .Select-menu-outer .Select-option {
+  padding: 0.55rem 0.75rem !important;
+  margin: 0 4px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  cursor: pointer !important;
+  height: auto !important;
+  min-height: 2.5rem !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.dash-dropdown.toolbar-select .Select-menu-outer .Select-option.is-focused,
+._dash-dropdown.toolbar-select .Select-menu-outer .Select-option.is-focused {
+  background-color: #f1f5f9 !important;
+}
+
+.dash-dropdown.toolbar-select .Select-menu-outer .Select-option.is-selected,
+._dash-dropdown.toolbar-select .Select-menu-outer .Select-option.is-selected {
+  background-color: rgba(255, 54, 33, 0.1) !important;
+  font-weight: 600 !important;
+}
+
+/* Short-term capability pages — interval timestamps and zone labels need extra width. */
+.dash-dropdown.toolbar-select.st-toolbar-interval .Select-menu-outer,
+._dash-dropdown.toolbar-select.st-toolbar-interval .Select-menu-outer,
+#st-tower-interval .Select-menu-outer {
+  min-width: max(100%, 34rem) !important;
+  width: max(100%, 34rem) !important;
+  max-width: min(44rem, calc(100vw - 1rem)) !important;
+}
+
+.dash-dropdown.toolbar-select.st-toolbar-zone .Select-menu-outer,
+._dash-dropdown.toolbar-select.st-toolbar-zone .Select-menu-outer,
+#st-near-zone .Select-menu-outer,
+#st-tower-zone .Select-menu-outer {
+  min-width: max(100%, 18rem) !important;
+  width: max(100%, 18rem) !important;
+}
+
+.curve-toolbar.st-toolbar .dash-dropdown.toolbar-select .Select-menu-outer,
+.curve-toolbar.st-toolbar ._dash-dropdown.toolbar-select .Select-menu-outer {
+  min-width: max(100%, 34rem) !important;
+  width: max(100%, 34rem) !important;
+  max-width: min(44rem, calc(100vw - 1rem)) !important;
+}
+
+.curve-toolbar.st-toolbar .Select-menu-outer .Select-option,
+.curve-toolbar.st-toolbar .Select-menu-outer .Select-option .Select-value-label {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}

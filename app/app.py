@@ -6,7 +6,9 @@ Utility CSS is loaded from a CDN; app-specific styles live in `assets/custom.css
 
 from __future__ import annotations
 
+import importlib
 import os
+import warnings
 from pathlib import Path
 
 import dash
@@ -43,18 +45,27 @@ except ImportError:  # pragma: no cover
 
 def _build_index_string() -> str:
     """
-    Append warehouse dropdown CSS at end of <body> so it wins over:
+    Append react-select override CSS at end of <body> so it wins over:
     - Dash/webpack styles injected for react-select after page load
     - Tailwind CDN (preflight / utilities) when it loads after assets
+    Files: warehouse_dropdown_menu.css (header), toolbar_dropdown_menu.css (pages).
     """
-    css_path = Path(__file__).resolve().parent / "warehouse_dropdown_menu.css"
-    try:
-        block = css_path.read_text(encoding="utf-8")
-    except OSError:
-        block = "/* warehouse_dropdown_menu.css missing */\n"
+    app_dir = Path(__file__).resolve().parent
+    blocks: list[str] = []
+    for name in (
+        "warehouse_dropdown_menu.css",
+        "toolbar_dropdown_menu.css",
+        "dip_arch_guard.css",
+    ):
+        css_path = app_dir / name
+        try:
+            blocks.append(css_path.read_text(encoding="utf-8"))
+        except OSError:
+            blocks.append(f"/* {name} missing */\n")
+    combined = "\n".join(blocks)
     return _DASH_INDEX_HTML.replace(
         "</body>",
-        f'<style id="warehouse-dropdown-overrides">\n{block}\n</style>\n</body>',
+        f'<style id="app-body-overrides">\n{combined}\n</style>\n</body>',
     )
 
 # ---------------------------------------------------------------------------
@@ -99,20 +110,111 @@ def _fetch_running_sql_warehouses() -> list[tuple[str, str]]:
     return rows
 
 
+def _warehouse_dropdown_options(rows: list[tuple[str, str]]) -> list[dict[str, str]]:
+    return [{"label": f"{name}  ·  {wid}", "value": wid} for wid, name in rows]
+
+
+def _resolve_warehouse_value(
+    current_value: str | None, rows: list[tuple[str, str]]
+) -> str | None:
+    """Keep a valid selection; otherwise default to the first running warehouse."""
+    if not rows:
+        return None
+    ids = {r[0] for r in rows}
+    if current_value and current_value in ids:
+        return current_value
+    return rows[0][0]
+
+
+def _load_initial_warehouses() -> tuple[list[dict[str, str]], str | None, tuple[tuple[str, str], ...]]:
+    try:
+        rows = _fetch_running_sql_warehouses()
+    except Exception:
+        return [], None, tuple()
+    return _warehouse_dropdown_options(rows), _resolve_warehouse_value(None, rows), tuple(rows)
+
+
+# Snapshot + layout defaults — first running warehouse selected on cold start.
+_PREV_WAREHOUSE_SNAPSHOT: tuple[tuple[str, str], ...] | None = None
+_INITIAL_WH_OPTIONS, _INITIAL_WH_VALUE, _INITIAL_WH_SNAPSHOT = _load_initial_warehouses()
+_PREV_WAREHOUSE_SNAPSHOT = _INITIAL_WH_SNAPSHOT
+
+_APP_DIR = Path(__file__).resolve().parent
+_PAGES_DIR = _APP_DIR / "pages"
+# Every route the sidebar links to; validated at startup so missing pages are obvious in logs.
+_REQUIRED_PAGE_MODULES = (
+    "pages.home",
+    "pages.short_term_overview",
+    "pages.short_term_near_delivery",
+    "pages.short_term_control_tower",
+    "pages.short_term_dsr",
+    "pages.short_term_insights",
+    "pages.volume_forecast_overview",
+    "pages.volume_forecast_consumption_short_term",
+    "pages.volume_forecast_consumption_long_term",
+    "pages.volume_forecast_industry",
+    "pages.volume_forecast_smart_metering",
+    "pages.volume_forecast_wind",
+    "pages.volume_forecast_solar",
+    "pages.volume_forecast_publication",
+    "pages.volume_forecast_accuracy",
+    "pages.volume_forecast_insights",
+)
+_REQUIRED_PAGE_PATHS = (
+    "/",
+    "/short-term/overview",
+    "/short-term/near-delivery",
+    "/short-term/control-tower",
+    "/short-term/dsr",
+    "/short-term/insights",
+    "/volume-forecasting/overview",
+    "/volume-forecasting/consumption-short-term",
+    "/volume-forecasting/consumption-long-term",
+    "/volume-forecasting/industry",
+    "/volume-forecasting/smart-metering",
+    "/volume-forecasting/wind",
+    "/volume-forecasting/solar",
+    "/volume-forecasting/publication",
+    "/volume-forecasting/accuracy",
+    "/volume-forecasting/insights",
+)
+
+
+def _validate_page_registry() -> None:
+    from dash import page_registry
+
+    paths = {p.get("path") for p in page_registry.values()}
+    missing_paths = [p for p in _REQUIRED_PAGE_PATHS if p not in paths]
+    if missing_paths:
+        warnings.warn(
+            "Dash page registry is missing routes "
+            f"{missing_paths}. Restart the app after adding files under app/pages/.",
+            stacklevel=2,
+        )
+
+
 # ---------------------------------------------------------------------------
 # App & WSGI server (required name `server` for gunicorn app:server)
 # ---------------------------------------------------------------------------
 app = Dash(
     __name__,
     use_pages=True,
+    pages_folder=str(_PAGES_DIR),
     title="Energy Trading System",
-    external_scripts=["https://cdn.tailwindcss.com"],
+    external_scripts=[
+        "https://cdn.tailwindcss.com",
+        "https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js",
+    ],
     external_stylesheets=[
         "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
     ],
     suppress_callback_exceptions=True,
     index_string=_build_index_string(),
 )
+
+for _page_module in _REQUIRED_PAGE_MODULES:
+    importlib.import_module(_page_module)
+_validate_page_registry()
 
 
 app.layout = html.Div(
@@ -146,8 +248,8 @@ app.layout = html.Div(
                                         ),
                                         dcc.Dropdown(
                                             id="sql-warehouse-dropdown",
-                                            options=[],
-                                            value=None,
+                                            options=_INITIAL_WH_OPTIONS,
+                                            value=_INITIAL_WH_VALUE,
                                             placeholder="No running warehouses",
                                             clearable=False,
                                             searchable=False,
@@ -174,7 +276,10 @@ app.layout = html.Div(
                         )
                     ],
                 ),
-                dash.page_container,
+                html.Main(
+                    className="flex-1 px-4 py-6 sm:px-6 lg:px-8",
+                    children=dash.page_container,
+                ),
             ],
         ),
     ],
@@ -196,8 +301,8 @@ def _sync_warehouse_dropdown(_n: int, current_value: str | None) -> tuple[list[d
         return [], None
 
     snapshot = tuple(rows)
-    options = [{"label": f"{name}  ·  {wid}", "value": wid} for wid, name in rows]
-    ids = {r[0] for r in rows}
+    options = _warehouse_dropdown_options(rows)
+    resolved = _resolve_warehouse_value(current_value, rows)
 
     if not rows:
         if _PREV_WAREHOUSE_SNAPSHOT == tuple():
@@ -205,20 +310,11 @@ def _sync_warehouse_dropdown(_n: int, current_value: str | None) -> tuple[list[d
         _PREV_WAREHOUSE_SNAPSHOT = tuple()
         return [], None
 
-    if snapshot == _PREV_WAREHOUSE_SNAPSHOT:
-        if current_value and current_value in ids:
-            raise PreventUpdate
-        return options, rows[0][0]
+    if snapshot == _PREV_WAREHOUSE_SNAPSHOT and resolved == current_value:
+        raise PreventUpdate
 
     _PREV_WAREHOUSE_SNAPSHOT = snapshot
-    if current_value and current_value in ids:
-        return options, current_value
-    return options, rows[0][0]
-
-
-# Last fetched warehouse list — used to skip re-outputting dropdown props when nothing changed
-# (re-sending options/value every 60s can re-trigger react-select and page callbacks).
-_PREV_WAREHOUSE_SNAPSHOT: tuple[tuple[str, str], ...] | None = None
+    return options, resolved
 
 server = app.server
 server.wsgi_app = ProxyFix(server.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
@@ -236,13 +332,13 @@ def _port() -> int:
 
 
 def _debug_enabled() -> bool:
-    """Local `python app.py` only. Production uses gunicorn (app.yaml); keep debug off unless opted in."""
+    """Dash development mode (debug UI, dev tools). Opt out with DASH_DEBUG=false."""
     v = os.environ.get("DASH_DEBUG", "").strip().lower()
-    if v in ("1", "true", "yes", "on"):
-        return True
     if v in ("0", "false", "no", "off"):
         return False
-    return False
+    if v in ("1", "true", "yes", "on"):
+        return True
+    return True
 
 
 if __name__ == "__main__":
@@ -250,5 +346,5 @@ if __name__ == "__main__":
     debug = _debug_enabled()
     print(f"\n  Open: http://127.0.0.1:{port}/\n  (server must stay running; Ctrl+C to stop)\n")
     if debug:
-        print("  Debug: ON — auto-reload; set DASH_DEBUG=false or unset to run in production mode.\n")
+        print("  Debug: ON — auto-reload enabled; set DASH_DEBUG=false for production mode.\n")
     app.run(host="0.0.0.0", port=port, debug=debug, dev_tools_hot_reload=debug)

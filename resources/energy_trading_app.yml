@@ -8,6 +8,6 @@ resources:
       # App name in workspace: lowercase letters, numbers, dashes only (no brackets/spaces/underscores).
       name: energy-trading-app-${bundle.target}
       description: >-
-        Energy Trading demo UI — Dash app with SQL warehouse–driven capability pages
-        (market data, trade capture, forecasting, strategy). See app/app.yaml and app/requirements.txt.
+        Energy Trading app skeleton — Dash UI with SQL warehouse selector and placeholder
+        capability pages. See app/app.yaml and app/requirements.txt.
       source_code_path: ../app
