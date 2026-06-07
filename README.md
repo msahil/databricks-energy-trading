@@ -58,7 +58,7 @@ Each capability page includes a **Presenter guide** (pain point → business val
 - Databricks CLI authenticated to your workspace (`databricks auth login`)
 - SQL warehouse with access to `energy_utilities.energy_trading2`
 - Bundle deploy permissions for jobs and Databricks Apps
-- For Genie pages: demo job must complete notebook `04_trader_insights_genie` (short-term) and `09_renewables_insights_genie` (volume forecasting)
+- For Genie pages: demo job must complete notebook `04_trader_insights_genie` (short-term) and `09_renewables_insights_genie` (volume forecasting); share each Genie space with the app service principal at **CAN VIEW** (launcher pages only read title/description — sample questions are curated in the app)
 
 ---
 

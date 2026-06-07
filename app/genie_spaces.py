@@ -1,10 +1,13 @@
 """
-List and fetch Databricks Genie Spaces for the Trader insights app page.
+List and fetch Databricks Genie Spaces for the insights launcher pages.
+
+Uses read-only Genie REST APIs (CAN VIEW on each space). Sample questions are
+curated on the Dash pages — not loaded from ``serialized_space`` (that export
+requires CAN EDIT).
 """
 
 from __future__ import annotations
 
-import json
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -139,35 +142,8 @@ def list_renewables_genie_spaces() -> tuple[list[GenieSpaceOption], str | None]:
     return list_genie_spaces(GENIE_TITLE_PREFIX_RENEWABLES)
 
 
-def _parse_sample_questions(serialized_space: str | dict[str, Any] | None) -> tuple[str, ...]:
-    if not serialized_space:
-        return ()
-    payload = serialized_space
-    if isinstance(payload, str):
-        try:
-            payload = json.loads(payload)
-        except json.JSONDecodeError:
-            return ()
-    if not isinstance(payload, dict):
-        return ()
-    questions: list[str] = []
-    for entry in (payload.get("config") or {}).get("sample_questions") or []:
-        if not isinstance(entry, dict):
-            continue
-        q = entry.get("question")
-        if isinstance(q, list) and q:
-            text = " ".join(str(part).strip() for part in q if str(part).strip())
-        elif isinstance(q, str):
-            text = q.strip()
-        else:
-            text = ""
-        if text:
-            questions.append(text)
-    return tuple(questions)
-
-
 def get_genie_space_detail(space_id: str) -> GenieSpaceDetail:
-    """Fetch description and ``config.sample_questions`` for a space."""
+    """Fetch title, description, and workspace link for a space (CAN VIEW)."""
     space_id = (space_id or "").strip()
     if not space_id:
         return GenieSpaceDetail(
@@ -183,18 +159,16 @@ def get_genie_space_detail(space_id: str) -> GenieSpaceDetail:
         res = w.api_client.do(
             "GET",
             f"/api/2.0/genie/spaces/{space_id}",
-            query={"include_serialized_space": "true"},
             headers={"Accept": "application/json"},
         )
         title = (res.get("title") or "").strip()
         description = (res.get("description") or "").strip() or None
-        sample_questions = _parse_sample_questions(res.get("serialized_space"))
         workspace_url = genie_room_url(w, space_id)
         return GenieSpaceDetail(
             space_id=space_id,
             title=title,
             description=description,
-            sample_questions=sample_questions,
+            sample_questions=(),
             workspace_url=workspace_url,
         )
     except Exception as exc:  # noqa: BLE001
