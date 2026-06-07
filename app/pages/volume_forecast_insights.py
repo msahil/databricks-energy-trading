@@ -150,19 +150,10 @@ def _alert(message: str, *, kind: str = "warn") -> html.Div:
     return html.Div(className=cls, children=[html.P(message)])
 
 
-def _questions_for_app_page(api_questions: tuple[str, ...]) -> tuple[str, ...]:
-    """Pick five demo questions for this page; does not change the Genie Space config."""
-    if not api_questions:
-        return _APP_DISPLAY_QUESTIONS
-    by_text = {q.strip(): q for q in api_questions}
-    return tuple(by_text.get(q.strip(), q) for q in _APP_DISPLAY_QUESTIONS)
-
-
-def _sample_questions_panel(prompts: tuple[str, ...], *, from_api: bool) -> html.Div:
+def _sample_questions_panel(prompts: tuple[str, ...]) -> html.Div:
     lead = (
-        "Starter questions for the demo (wind, solar, publication, accuracy). In Genie, turn on Agent mode and pick a tile—or ask your own."
-        if from_api
-        else "Showing default demo questions (could not load from the space)."
+        "Starter questions for the demo (wind, solar, publication, accuracy). "
+        "In Genie, turn on Agent mode and pick a tile—or ask your own."
     )
     cards = [
         html.Div(
@@ -227,10 +218,7 @@ def _render_space_detail(space_id: str | None) -> html.Div:
     else:
         children.append(html.P("No description on this space.", className="curve-section-lead"))
 
-    prompts = _questions_for_app_page(detail.sample_questions)
-    children.append(
-        _sample_questions_panel(prompts, from_api=bool(detail.sample_questions)),
-    )
+    children.append(_sample_questions_panel(_APP_DISPLAY_QUESTIONS))
 
     return html.Div(className="insights-space-detail", children=children)
 
